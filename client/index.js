@@ -5,6 +5,7 @@ let REM_HOST = "";
 let REM_PORT = 8080;
 
 const sendToRemote = (socket, msg) => {
+	try{
 	 var serviceSocket = new net.Socket();
 	        serviceSocket.connect(parseInt(REM_PORT), REM_HOST, function () {
 		            serviceSocket.write(msg);
@@ -12,6 +13,9 @@ const sendToRemote = (socket, msg) => {
 	        serviceSocket.on("data", function (data) {
 		            socket.write(data);
 		        });
+	}catch (e){
+		console.log(e)
+	}
 }
 
 var server = net.createServer(function (socket) {
@@ -20,6 +24,7 @@ var server = net.createServer(function (socket) {
 			const str = msg.toString()
 			const json = JSON.parse(str)
 			if(json.SETREM===true){
+				console.log("json")
 				const {PORT, HOST} = json
 				if(PORT){
 					REM_PORT = parseInt(PORT)
@@ -28,9 +33,11 @@ var server = net.createServer(function (socket) {
 					REM_HOST = HOST
 				}
 			}else{
+				console.log("not json")
 				sendToRemote(socket, msg)
 			}
-		}catch{
+		}catch(e){
+			console.log("not json")
 			sendToRemote(socket, msg)
 		}
 		       
